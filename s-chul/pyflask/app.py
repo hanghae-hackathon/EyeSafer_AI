@@ -4,6 +4,7 @@ from PIL import Image
 import numpy as np
 from scipy.spatial import distance
 from flask import Flask, render_template, Response
+import io
 
 app = Flask(__name__)
 
@@ -12,14 +13,23 @@ api_url = "https://detect.roboflow.com/crowd-counting-dataset-w3o7w/2"
 api_key = "w3ZNODb5rmLqLjKh9MVm"
 
 # 비디오 파일 설정
-cap = cv2.VideoCapture(r"C:\Users\dltls\EyeSafer\s-chul\testvideo\test5.mp4")
+cap = cv2.VideoCapture(r"C:\Users\dltls\EyeSafer\s-chul\testvideo\test6.mp4")
 
 def infer_frame(frame, confidence=0.20):
+    # OpenCV 이미지를 PIL 이미지로 변환
     image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    image.save("temp_frame.jpg")
+    
+    # 이미지를 바이트 배열로 변환
+    img_byte_arr = io.BytesIO()
+    image.save(img_byte_arr, format='JPEG')
+    img_byte_arr = img_byte_arr.getvalue()
+    
+    # API 호출 URL 구성
     infer_url = f"{api_url}?api_key={api_key}&confidence={confidence}"
-    with open("temp_frame.jpg", "rb") as img_file:
-        response = requests.post(infer_url, files={"file": img_file})
+    
+    # 이미지 바이트 배열을 사용해 API 호출
+    response = requests.post(infer_url, files={"file": img_byte_arr})
+    
     return response.json()
 
 def get_center(bbox):
