@@ -1,0 +1,5 @@
+train: /Users/ijaein/Desktop/EyeSafer_AI/yolo_data_sampled/images
+val: /Users/ijaein/Desktop/EyeSafer_AI/yolo_data_sampled/images
+
+nc: 1
+names: ['person']
