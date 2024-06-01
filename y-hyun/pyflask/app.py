@@ -1,11 +1,15 @@
 import cv2
 import requests
 from PIL import Image
+import torch
 import numpy as np
 from scipy.spatial import distance
 from flask import Flask, render_template, Response
 import io
 import matplotlib.pyplot as plt
+import pathlib
+temp = pathlib.PosixPath
+pathlib.PosixPath = pathlib.WindowsPath
 app = Flask(__name__)
 
 # 로보플로우 API 설정
@@ -18,6 +22,7 @@ origin_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test
 detection_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test.mp4")
 # detection_cap = origin_cap
 model3d_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test.mp4")
+jin_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test.mp4")
 
 def infer_frame(frame, confidence=0.20):
     # OpenCV 이미지를 PIL 이미지로 변환
@@ -149,6 +154,89 @@ def generate_3d_frames(cap):
 
     # 창 닫기
     plt.close()
+# 모델 로드 (사전 훈련된 YOLOv5 모델 사용)
+model_path = r'C:\Users\joyon\EyeSafer_AI\j-in\best.pt'  # 올바른 경로를 지정하세요
+model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path, force_reload=True)
+
+# 경고 인원 수 설정
+alert_threshold = 3  # 3명 이상일 경우 표시
+confidence_threshold = 0.3  # 인식 정확도 0.3 이상인 경우만 사람으로 인식
+distance_threshold = 50  # 가까운 거리의 기준 (픽셀 단위로 조정 가능)
+
+def calculate_distance(box1, box2):
+    center1 = ((box1[0] + box1[2]) / 2, (box1[1] + box1[3]) / 2)
+    center2 = ((box2[0] + box2[2]) / 2, (box2[1] + box2[3]) / 2)
+    distance = np.sqrt((center1[0] - center2[0]) ** 2 + (center1[1] - center2[1]) ** 2)
+    return distance
+
+def generate_jin_frames(video_path):
+    cap = cv2.VideoCapture(video_path)
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # 객체 탐지
+        results = model(frame)
+
+        # 탐지된 사람 수 계산 및 위치 저장
+        persons = [x for x in results.xyxy[0] if int(x[-1]) == 0 and x[4] >= confidence_threshold]  # class 0은 사람을 의미, 인식 정확도 0.3 이상
+        num_persons = len(persons)
+
+        # 탐지된 인원 수 화면에 출력
+        cv2.putText(frame, f'Total Persons: {num_persons}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+        # 사람들 간의 거리 계산
+        close_persons = []
+        for i in range(num_persons):
+            for j in range(i + 1, num_persons):
+                box1 = persons[i][:4]
+                box2 = persons[j][:4]
+                distance = calculate_distance(box1, box2)
+                if distance < distance_threshold:  # 가까운 거리의 기준 (픽셀 단위로 조정 가능)
+                    close_persons.append((box1, box2))
+
+        # 일정 거리 이하로 모여 있는 사람 수가 alert_threshold 이상인 경우 경고 박스 표시
+        if len(close_persons) >= alert_threshold:
+            # 클러스터의 중심 좌표 계산
+            centers = []
+            for box1, box2 in close_persons:
+                centers.append(((box1[0] + box1[2]) / 2, (box1[1] + box1[3]) / 2))
+                centers.append(((box2[0] + box2[2]) / 2, (box2[1] + box2[3]) / 2))
+
+            # 중심 좌표의 평균 계산
+            centers = np.array(centers)
+            avg_center = np.mean(centers, axis=0)
+
+            # 경고 영역 설정
+            x_min = int(np.min(centers[:, 0]) - 20)
+            y_min = int(np.min(centers[:, 1]) - 20)
+            x_max = int(np.max(centers[:, 0]) + 20)
+            y_max = int(np.max(centers[:, 1]) + 20)
+
+            # 투명한 빨간 박스 그리기
+            overlay = frame.copy()
+            cv2.rectangle(overlay, (x_min, y_min), (x_max, y_max), (0, 0, 255), -1)
+            alpha = 0.4  # 투명도
+            frame = cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0)
+
+            # 경고 메시지 출력
+            cv2.putText(frame, 'DANGER: Crowding Detected!', (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+
+        # 결과 표시
+        for *xyxy, conf, cls in persons:
+            label = f'{model.names[int(cls)]} {conf:.2f}'
+            cv2.rectangle(frame, (int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3])), (255, 0, 0), 2)
+            cv2.putText(frame, label, (int(xyxy[0]), int(xyxy[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+    cap.release()
+
 
 @app.route('/')
 def index():
@@ -166,6 +254,9 @@ def video_origin():
 def video_3d():
     return Response(generate_3d_frames(model3d_cap), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/video_jin')
+def video_jin():
+    return Response(generate_jin_frames(jin_cap), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)

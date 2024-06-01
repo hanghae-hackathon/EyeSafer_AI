@@ -267,11 +267,11 @@ import os
 app = Flask(__name__)
 
 # 모델 로드 (사전 훈련된 YOLOv5 모델 사용)
-model_path = r'C:\Users\dltls\EyeSafer\j-in\best.pt'  # 올바른 경로를 지정하세요
+model_path = r'C:\Users\joyon\EyeSafer_AI\j-in\best.pt'  # 올바른 경로를 지정하세요
 model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path, force_reload=True)
 
 # 비디오 경로 지정
-video_path = r"C:\Users\dltls\EyeSafer\testvideo\test_seoul.mp4"
+video_path = r"C:\Users\joyon\EyeSafer_AI\testvideo\test_seoul.mp4"
 
 # 경고 인원 수 설정
 alert_threshold = 3  # 3명 이상일 경우 표시
