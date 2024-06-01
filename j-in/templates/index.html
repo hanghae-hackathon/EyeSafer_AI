@@ -2,9 +2,27 @@
 <html>
 <head>
     <title>Crowd Density Detection</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-around;
+        }
+        .stream {
+            margin: 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>Crowd Density Detection</h1>
-    <img src="{{ url_for('video_feed') }}" width="800" />
+    <div class="container">
+        <div class="stream">
+            <h2>Stream 1</h2>
+            <img src="http://localhost:5001/video_feed" width="800" />
+        </div>
+        <div class="stream">
+            <h2>Stream 2</h2>
+            <img src="http://localhost:5002/video_feed" width="800" />
+        </div>
+    </div>
 </body>
 </html>

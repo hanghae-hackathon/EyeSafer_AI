@@ -17,12 +17,12 @@ api_url = "https://detect.roboflow.com/crowd-counting-dataset-w3o7w/2"
 api_key = "w3ZNODb5rmLqLjKh9MVm"
 
 # 비디오 파일 설정
-origin_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test.mp4") 
+origin_cap = cv2.VideoCapture(r"C:\Users\dltls\EyeSafer\testvideo\test.mp4") 
 # origin_cap = cv2.VideoCapture(0) 
-detection_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test.mp4")
+detection_cap = cv2.VideoCapture(r"C:\Users\dltls\EyeSafer\testvideo\test.mp4")
 # detection_cap = origin_cap
-model3d_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test.mp4")
-jin_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test.mp4")
+model3d_cap = cv2.VideoCapture(r"C:\Users\dltls\EyeSafer\testvideo\test.mp4")
+jin_cap = cv2.VideoCapture(r"C:\Users\dltls\EyeSafer\testvideo\test.mp4")
 
 def infer_frame(frame, confidence=0.20):
     # OpenCV 이미지를 PIL 이미지로 변환
@@ -155,8 +155,8 @@ def generate_3d_frames(cap):
     # 창 닫기
     plt.close()
 # 모델 로드 (사전 훈련된 YOLOv5 모델 사용)
-model_path = r'C:\Users\joyon\EyeSafer_AI\j-in\best.pt'  # 올바른 경로를 지정하세요
-model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path, force_reload=True)
+model_path = r'C:\Users\dltls\EyeSafer\j-in\best.pt'  # 올바른 경로를 지정하세요
+model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path, force_reload=False)
 
 # 경고 인원 수 설정
 alert_threshold = 3  # 3명 이상일 경우 표시
@@ -169,8 +169,7 @@ def calculate_distance(box1, box2):
     distance = np.sqrt((center1[0] - center2[0]) ** 2 + (center1[1] - center2[1]) ** 2)
     return distance
 
-def generate_jin_frames(video_path):
-    cap = cv2.VideoCapture(video_path)
+def generate_jin_frames(cap):
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:

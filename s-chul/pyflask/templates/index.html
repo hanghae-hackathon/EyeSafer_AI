@@ -1,11 +1,57 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
+<html>
+<head>
+    <title>Crowd Density Detection</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .stream, .graph {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="stream">
+            <h2> model2 </h2>
+            <img src="{{ url_for('video_feed') }}" width="800" />
+        </div>
+        <div class="graph">
+            <img id="graph" src="{{ url_for('graph') }}" width="800" />
+        </div>
+    </div>
+    <script>
+        function refreshGraph() {
+            var graph = document.getElementById('graph');
+            graph.src = "{{ url_for('graph') }}" + "?t=" + new Date().getTime();
+        }
+        setInterval(refreshGraph, 5000);  // 5초마다 그래프 갱신
+    </script>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <title>Crowd Density Detection</title>
 </head>
 <body>
-    <h1>Crowd Density Detection</h1>
+    <h1>Model2</h1>
     <img src="{{ url_for('video_feed') }}" width="800" />
+    <h2>Model2 Graph</h2>
+    <img id="graph" src="{{ url_for('graph') }}" width="800" />
+    <script>
+        function refreshGraph() {
+            var graph = document.getElementById('graph');
+            graph.src = "{{ url_for('graph') }}" + "?t=" + new Date().getTime();
+        }
+        setInterval(refreshGraph, 5000);  // 5초마다 그래프 갱신
+    </script>
 </body>
-</html>
+</html> -->
+
+

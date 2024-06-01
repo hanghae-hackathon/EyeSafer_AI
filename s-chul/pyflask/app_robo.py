@@ -5,6 +5,10 @@ import numpy as np
 from scipy.spatial import distance
 from flask import Flask, render_template, Response
 import io
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from mpl_toolkits.mplot3d import Axes3D
+from threading import Lock
 
 app = Flask(__name__)
 
@@ -13,7 +17,12 @@ api_url = "https://detect.roboflow.com/crowd-counting-dataset-w3o7w/2"
 api_key = "w3ZNODb5rmLqLjKh9MVm"
 
 # 비디오 파일 설정
-cap = cv2.VideoCapture(r"C:\Users\dltls\EyeSafer\testvideo\test6.mp4")
+video_path = r"C:\Users\dltls\EyeSafer\testvideo\test6.mp4"
+cap = cv2.VideoCapture(video_path)
+
+# 빨간 박스 면적 저장
+red_box_areas = []
+lock = Lock()
 
 def infer_frame(frame, confidence=0.20):
     # OpenCV 이미지를 PIL 이미지로 변환
@@ -52,6 +61,7 @@ def draw_red_box(frame, points):
     return (x_max - x_min) * (y_max - y_min)
 
 def generate_frames():
+    frame_count = 0
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -83,9 +93,18 @@ def generate_frames():
                         close_points.append(centers[i])
                         red_box_area = draw_red_box(frame, close_points)
                         total_red_box_area += red_box_area
+            if frame_area > 0:
+                danger_level = total_red_box_area / frame_area
+                cv2.putText(frame, f"Danger Level: {danger_level:.2f}", (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
             if total_red_box_area / frame_area >= 0.1:
                 cv2.putText(frame, "Warning: High crowd density!", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             cv2.putText(frame, f"Detected {num_people} people", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+            # 빨간 박스 면적 저장
+            with lock:
+                red_box_areas.append((frame_count, total_red_box_area, danger_level))
+            frame_count += 1
+
         ret, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
@@ -99,6 +118,23 @@ def index():
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/graph')
+def graph():
+    with lock:
+        frame_counts, red_areas, danger_levels = zip(*red_box_areas) if red_box_areas else ([], [], [])
+    
+    fig = Figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_trisurf(frame_counts, red_areas, danger_levels, cmap='viridis')
+    ax.set_xlabel('Frame')
+    ax.set_ylabel('Red Box Area')
+    ax.set_zlabel('Danger Level')
+    ax.set_title('Video Frame in 3D')
+
+    output = io.BytesIO()
+    fig.savefig(output, format='png')
+    output.seek(0)
+    return Response(output.getvalue(), mimetype='image/png')
+
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
-
