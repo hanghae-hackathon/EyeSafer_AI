@@ -15,6 +15,6 @@ CCTV내 군중 밀집도 계산 및 경고 시스템
 
 ## 도구
 <img src="https://img.shields.io/badge/Git-00599C?style=flat-square&logo=Git&logoColor=white"/>
-<img src="https://img.shields.io/badge/Flask-00599C?style=flat-square&logo=Flask&logoColor=white"/>
+<img src="https://img.shields.io/badge/Slack-00599C?style=flat-square&logo=Slack&logoColor=white"/>
 
 # Architecture
