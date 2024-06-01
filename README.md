@@ -2,9 +2,7 @@
 CCTV내 군중 밀집도 계산 및 경고 시스템
 
 # 개요
-
-![image](https://github.com/hanghae-hackathon/EyeSafer_AI/assets/145883892/7dff8955-67c3-4d9a-8c99-fbce96dcf28b)
-
+거리 혼잡도에 따른 안전사고에 대한 방안으로 이 서비스를 기획하였습니다.
 
 # Tech
 
