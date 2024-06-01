@@ -13,10 +13,11 @@ api_url = "https://detect.roboflow.com/crowd-counting-dataset-w3o7w/2"
 api_key = "w3ZNODb5rmLqLjKh9MVm"
 
 # 비디오 파일 설정
-# origin_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test6.mp4") 
-origin_cap = cv2.VideoCapture(0) 
-# detection_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test6.mp4")
-detection_cap = origin_cap
+origin_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test.mp4") 
+# origin_cap = cv2.VideoCapture(0) 
+detection_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test.mp4")
+# detection_cap = origin_cap
+model3d_cap = cv2.VideoCapture(r"C:\Users\joyon\EyeSafer_AI\y-hyun\testvideo\test.mp4")
 
 def infer_frame(frame, confidence=0.20):
     # OpenCV 이미지를 PIL 이미지로 변환
@@ -104,39 +105,50 @@ def generate_origin_frames(cap):
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 def generate_3d_frames(cap):
+        # 3D 그래프 생성
+    fig = plt.figure() 
+    ax = fig.add_subplot(111, projection='3d')
+
+    # 초기 프레임 읽기
+    ret, frame = cap.read()
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    x, y = np.meshgrid(range(gray_frame.shape[1]), range(gray_frame.shape[0]))
+    surf = ax.plot_surface(x, y, gray_frame, cmap='viridis')
+
+
+    # z 레이블 및 축 제거
+    ax.set_zlabel('')
+    ax.set_zticks([])
+    ax.view_init(elev=-90, azim=-90)
+    # 그래프 레이블 및 타이틀 설정
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+
     while True: 
-        # 비디오의 첫 번째 프레임 읽기
+        # 비디오의 다음 프레임 읽기
         ret, frame = cap.read()
 
         # 프레임이 제대로 읽혔는지 확인
         if not ret:
             print("Failed to read video frame.")
-            exit()
+            break
 
         # 프레임을 그레이스케일로 변환
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        # 2D 그래프 생성
-        x, y = np.meshgrid(range(gray_frame.shape[1]), range(gray_frame.shape[0]))
-
-        # 3D 그래프 생성
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-
         # 영상 데이터를 3D로 표현
-        ax.plot_surface(x, y, gray_frame, cmap='viridis')
-
-        # 그래프 레이블 및 타이틀 설정
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-        ax.set_title('Video Frame in 3D')
-
-        # 그래프 표시
-        plt.show()
-
-        # 비디오 캡처 객체 해제
+        surf.remove()  # 이전 그래프 삭제
+        surf = ax.plot_surface(x, y, gray_frame, cmap='viridis')
+        output = io.BytesIO()
+        fig.savefig(output, format='png')
+        output.seek(0)
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + output.getvalue() + b'\r\n')
+    # 비디오 캡처 객체 해제
     cap.release()
+
+    # 창 닫기
+    plt.close()
 
 @app.route('/')
 def index():
@@ -149,6 +161,11 @@ def video_crowd():
 @app.route('/video_origin')
 def video_origin():
     return Response(generate_origin_frames(origin_cap), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/video_3d')
+def video_3d():
+    return Response(generate_3d_frames(model3d_cap), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
