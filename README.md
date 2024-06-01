@@ -14,7 +14,7 @@ CCTV내 군중 밀집도 계산 및 경고 시스템
 ## 프레임워크 및 라이브러리
 <img src="https://img.shields.io/badge/Flask-00599C?style=flat-square&logo=Flask&logoColor=white"/>
 <img src="https://img.shields.io/badge/OpenCV-00599C?style=flat-square&logo=OpenCV&logoColor=white"/>
-<img src="https://img.shields.io/badge/YOLO-00599C?style=flat-square&logo=YOLO&logoColor=white"/>
+<img src="https://img.shields.io/badge/YOLOv5-00599C?style=flat-square&logo=YOLOv5&logoColor=white"/>
 
 ## 도구
 <img src="https://img.shields.io/badge/Git-00599C?style=flat-square&logo=Git&logoColor=white"/>
