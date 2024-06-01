@@ -8,13 +8,13 @@ CCTV내 군중 밀집도 계산 및 경고 시스템
 # Tech
 
 ## 언어
-![Python](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg)
+<img src="https://img.shields.io/badge/Python-3766AB?style=flat-square&logo=Python&logoColor=white"/>
 
 ## 프레임워크 및 라이브러리
-![Flask](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg)
+<img src="https://img.shields.io/badge/Flask-00599C?style=flat-square&logo=Flask&logoColor=white"/>
 
 ## 도구
-![Git](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg)
-![Slack](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/Slack/Slack-original.svg)
+<img src="https://img.shields.io/badge/Git-00599C?style=flat-square&logo=Git&logoColor=white"/>
+<img src="https://img.shields.io/badge/Flask-00599C?style=flat-square&logo=Flask&logoColor=white"/>
 
 # Architecture
