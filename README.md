@@ -20,7 +20,7 @@ CCTV내 군중 밀집도 계산 및 경고 시스템
 <img src="https://img.shields.io/badge/Slack-00599C?style=flat-square&logo=Slack&logoColor=white"/>
 
 # Output
-Original Video  Roboflow 2.0 Object Detection(Fast) Inference YOLOv5 Inference  Heatmap
+`Original Video`  `Roboflow 2.0 Object Detection(Fast)` `Inference YOLOv5 Inference`  `Heatmap`
 
 ![GIFMaker_me (2)](https://github.com/hanghae-hackathon/EyeSafer_AI/assets/44021629/e192154f-c64e-49c8-a4b7-f8776067a314) 
 ![GIFMaker_me (1)](https://github.com/hanghae-hackathon/EyeSafer_AI/assets/44021629/5b251cd1-0aa9-4dd1-acac-383817474459) 
