@@ -9,6 +9,7 @@ CCTV내 군중 밀집도 계산 및 경고 시스템
 
 ## 언어
 <img src="https://img.shields.io/badge/Python-3766AB?style=flat-square&logo=Python&logoColor=white"/>
+<img src="https://img.shields.io/badge/HTML-3766AB?style=flat-square&logo=HTML&logoColor=white"/>
 
 ## 프레임워크 및 라이브러리
 <img src="https://img.shields.io/badge/Flask-00599C?style=flat-square&logo=Flask&logoColor=white"/>
