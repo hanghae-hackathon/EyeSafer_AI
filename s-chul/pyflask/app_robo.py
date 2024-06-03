@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 # 로보플로우 API 설정
 api_url = "https://detect.roboflow.com/crowd-counting-dataset-w3o7w/2"
-api_key = "w3ZNODb5rmLqLjKh9MVm"
+api_key = "api_key"
 
 # 비디오 파일 설정
 video_path = r"C:\Users\dltls\EyeSafer\testvideo\test6.mp4"
